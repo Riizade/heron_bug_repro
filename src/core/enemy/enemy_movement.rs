@@ -4,7 +4,7 @@ use crate::core::utils::position::*;
 use bevy::math::swizzles::Vec3Swizzles;
 use heron::prelude::*;
 use crate::core::collision_layers::CollisionLayer;
-use crate::core::constants::TILE_SIZE;
+use crate::core::constants::*;
 
 #[derive(Default, Debug, Clone)]
 pub struct Enemy;
@@ -30,13 +30,13 @@ pub fn spawn_enemies_system(
 ) {
 
     // spawn enemies
-    for i in 0..1 {
+    for i in 0..NUM_ENEMIES {
         let enemy_texture_handle = asset_server.load("player_red.png");
         commands.spawn_bundle(EnemyBundle {
             sprite: SpriteBundle {
                 material: materials.add(enemy_texture_handle.into()),
                 sprite: Sprite {
-                    size: *TILE_SIZE,
+                    size: Vec2::new(32.0, 32.0),
                     ..Default::default()
                 },
                 transform: Transform::from_xyz(i as f32 * 100.0, 0.0, 1.0),
@@ -56,9 +56,6 @@ pub fn spawn_enemies_system(
 // performs enemy movement using current pathfinding setup
 pub fn enemy_movement_system(mut query_set: QuerySet<(Query<(&Player, &Transform)>, Query<(&Enemy, &mut Transform, &mut Velocity)>)>) {
     let player_positions = query_set.q0().iter().map(|(_, transform)| transform.translation.xy()).collect();
-    const MIN_DISTANCE: f32 = 0.0;
-    const MAX_DISTANCE: f32 = 30.0;
-    const MOVEMENT_SPEED: f32 = 200.0;
     for (_,  mut transform, mut velocity) in query_set.q1_mut().iter_mut() {
         let self_position: Vec2 = transform.translation.xy();
 
@@ -67,17 +64,17 @@ pub fn enemy_movement_system(mut query_set: QuerySet<(Query<(&Player, &Transform
         let destination: Vec2 = match closest_target {
             Some(target) => {
                 let distance_to_target = self_position.distance(target).abs();
-                if distance_to_target < MAX_DISTANCE && distance_to_target > MIN_DISTANCE {
+                if distance_to_target < ENEMY_DESIRED_MAX_DISTANCE && distance_to_target > ENEMY_DESIRED_MIN_DISTANCE {
                     transform.translation.xy() // current position
-                } else if distance_to_target > MAX_DISTANCE {
+                } else if distance_to_target > ENEMY_DESIRED_MAX_DISTANCE {
                     // point from target to self
                     let direction = (self_position - target).normalize();
-                    let destination = target + direction * (MAX_DISTANCE);
+                    let destination = target + direction * (ENEMY_DESIRED_MAX_DISTANCE);
                     destination
                 } else { // distance_to_target < MIN_DISTANCE
                     // point from target to self
                     let direction = (self_position - target).normalize();
-                    let destination = target + direction * (MIN_DISTANCE);
+                    let destination = target + direction * (ENEMY_DESIRED_MIN_DISTANCE);
                     destination
                 }
             },
@@ -92,7 +89,7 @@ pub fn enemy_movement_system(mut query_set: QuerySet<(Query<(&Player, &Transform
         // if we're not there yet
         if desired_distance > 0.0001 {
             // update velocity vector
-            let velocity_vector = direction * MOVEMENT_SPEED;
+            let velocity_vector = direction * ENEMY_SPEED;
             velocity.linear = velocity_vector.extend(0.0);
         }
 

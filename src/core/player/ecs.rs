@@ -76,7 +76,7 @@ pub fn spawn_player_system(
         .insert_bundle(SpriteBundle {
             material: materials.add(player_texture_handle.into()),
             sprite: Sprite {
-                size: *TILE_SIZE,
+                size: Vec2::new(32.0, 32.0),
                 ..Default::default()
             },
             transform: Transform::from_xyz(100.0, 100.0, 1.0),
