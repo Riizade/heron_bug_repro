@@ -1,0 +1,23 @@
+[package]
+name = "bevy_template"
+version = "0.1.0"
+authors = ["Adam Johnson <riizade@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.bevy]
+version = "0.5.0"
+
+[dependencies.lazy_static]
+version = "1.4.0"
+
+[dependencies.heron]
+version = "0.11.1"
+features = ["2d", "debug-2d"]
+
+[dependencies.tiled]
+version = "0.9.5"
+
+[dependencies.anyhow]
+version = "1.0.37"
